@@ -38,6 +38,7 @@
 /* Demo declarations. */
 extern void vStartMQTTEchoDemo( void );
 /* extern void vStartSubpubDemoTasks( void ); */
+/* extern void vStartMQTTSensorDemo( void ); */
 /* extern void vStartSimpleTCPServerTasks( void ); */
 /* extern void vStartTCPEchoClientTasks_SingleTasks( void ); */
 /* extern void vStartTCPEchoClientTasks_SeparateTasks( void ); */
@@ -54,6 +55,7 @@ void DEMO_RUNNER_RunDemos( void )
 {
     vStartMQTTEchoDemo();
     /* vStartSubpubDemoTasks(); */
+    /* vStartMQTTSensorDemo(); */
     /* vStartSimpleTCPServerTasks(); */
     /* vStartTCPEchoClientTasks_SingleTasks(); */
     /* vStartTCPEchoClientTasks_SeparateTasks(); */

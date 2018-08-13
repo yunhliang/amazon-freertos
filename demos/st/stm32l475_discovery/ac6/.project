@@ -186,6 +186,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_demos/source/aws_sensor_data.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/mqtt/aws_sensor_data.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>

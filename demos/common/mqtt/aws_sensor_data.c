@@ -61,6 +61,7 @@
 /* Standard includes. */
 #include "string.h"
 #include "stdio.h"
+#include "time.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -77,13 +78,12 @@
 #include "aws_demo_config.h"
 #include "sensors_data.h"
 
-int32_t TEMPERATURE_Value;
-uint32_t HUMIDITY_Value;
-//uint32_t PRESSURE_Value;
-//int16_t  ACC_Value[3];
-//float    GYR_Value[3];
-//int16_t  MAG_Value[3];
-//uint16_t PROXIMITY_Value;
+int32_t  TEMPERATURE_Value;
+int32_t  HUMIDITY_Value;
+int32_t  PRESSURE_Value;
+int16_t  ACC_Value[3];
+int16_t  MAG_Value[3];
+uint16_t PROXIMITY_Value;
 
 /**
  * @brief MQTT client ID.
@@ -257,10 +257,32 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
 	
     TEMPERATURE_Value = (int32_t)(1000 * BSP_TSENSOR_ReadTemp());
     HUMIDITY_Value = (uint32_t)(1000 * BSP_HSENSOR_ReadHumidity());
+    PRESSURE_Value = (uint32_t)(1000 * BSP_PSENSOR_ReadPressure());
+    BSP_ACCELERO_AccGetXYZ(ACC_Value);
+    BSP_MAGNETO_GetXYZ(MAG_Value);
+    PROXIMITY_Value = (uint16_t)VL53L0X_PROXIMITY_GetDistance();
 
     (void) snprintf( cDataBuffer, echoMAX_DATA_LENGTH, \
-           "temperature: %d\thumidity: %d",
-           TEMPERATURE_Value, HUMIDITY_Value);
+        "{"
+        "\"timestamp\":%d,"
+        "\"temperature\":%d.%d,"
+        "\"humidity\":%d.%d,"
+        "\"pressure\":%d.%d,"
+        "\"proximity\":%d,"
+        "\"acc_x\":%d,"
+        "\"acc_y\":%d,"
+        "\"acc_z\":%d,"
+        "\"mag_x\":%d,"
+        "\"mag_y\":%d,"
+        "\"mag_z\":%d"
+        "}\r\n",
+        (int32_t)time(NULL),
+        TEMPERATURE_Value / 1000, TEMPERATURE_Value % 1000,
+        HUMIDITY_Value / 1000, HUMIDITY_Value % 1000,
+        PRESSURE_Value / 1000, PRESSURE_Value % 1000,
+        PROXIMITY_Value,
+        ACC_Value[0], ACC_Value[1], ACC_Value[2],
+        MAG_Value[0], MAG_Value[1], MAG_Value[2]);
 
     /* Setup the publish parameters. */
     memset( &( xPublishParameters ), 0x00, sizeof( xPublishParameters ) );
@@ -277,7 +299,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
 
     if( xReturned == eMQTTAgentSuccess )
     {
-        configPRINTF( ( "Echo successfully published '%s'\r\n", cDataBuffer ) );
+        configPRINTF( ( "Echo successfully published\r\n") );
     }
     else
     {
@@ -483,12 +505,6 @@ static void prvMQTTConnectAndPublishTask( void * pvParameters )
     {
         configPRINTF( ( "MQTT sensor test echoing task created.\r\n" ) );
 
-        /* Subscribe to the echo topic. */
-        xReturned = prvSubscribe();
-    }
-
-    if( xReturned == pdPASS )
-    {
         /* MQTT client is now connected to a broker.  Publish a message
          * every five seconds until a minute has elapsed. */
         for( x = 0; x < xIterationsInAMinute; x++ )

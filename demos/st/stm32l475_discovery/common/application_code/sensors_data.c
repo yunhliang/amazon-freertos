@@ -80,8 +80,10 @@ int init_sensors(void)
    
   BSP_HSENSOR_Init();
   BSP_TSENSOR_Init();
-  //BSP_PSENSOR_Init();
-  //BSP_ACCELERO_Init();
+  BSP_PSENSOR_Init();
+  BSP_ACCELERO_Init();
+  BSP_MAGNETO_Init();
+  VL53L0X_PROXIMITY_Init();
 #if 0 
   if (HSENSOR_OK != BSP_HSENSOR_Init())
   {
