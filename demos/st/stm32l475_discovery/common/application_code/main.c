@@ -52,6 +52,9 @@
 /* WiFi driver includes. */
 #include "es_wifi.h"
 
+#include "sensors_data.h"
+
+
 /* The SPI driver polls at a high priority. The logging task's priority must also
  * be high to be not be starved of CPU time. */
 #define mainLOGGING_TASK_PRIORITY                       ( configMAX_PRIORITIES - 1 )
@@ -339,6 +342,8 @@ static void prvMiscInitialization( void )
 
     /* UART console init. */
     Console_UART_Init();
+
+    init_sensors();
 }
 /*-----------------------------------------------------------*/
 
@@ -533,9 +538,7 @@ void vApplicationIdleHook( void )
 
 void * malloc( size_t xSize )
 {
-    configASSERT( xSize == ~0 );
-
-    return NULL;
+    return pvPortMalloc(xSize);
 }
 /*-----------------------------------------------------------*/
 
