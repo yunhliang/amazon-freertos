@@ -113,7 +113,7 @@ uint16_t PROXIMITY_Value;
  * @brief Dimension of the character array buffers used to hold data (strings in
  * this case) that is published to and received from the MQTT broker (in the cloud).
  */
-#define echoMAX_DATA_LENGTH    300
+#define echoMAX_DATA_LENGTH    200
 
 /**
  * @brief A block time of 0 simply means "don't block".
