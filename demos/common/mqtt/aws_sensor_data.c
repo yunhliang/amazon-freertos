@@ -242,6 +242,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
     MQTTAgentPublishParams_t xPublishParameters;
     MQTTAgentReturnCode_t xReturned;
     char cDataBuffer[ echoMAX_DATA_LENGTH ];
+    TickType_t xLastWakeTime;
 
     /* Check this function is not being called before the MQTT client object has
      * been created. */
