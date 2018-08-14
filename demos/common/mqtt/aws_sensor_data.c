@@ -292,7 +292,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
 
     if( xReturned == eMQTTAgentSuccess )
     {
-        configPRINTF( ( "Echo successfully published\r\n") );
+        configPRINTF( ( "Echo successfully published %s\r\n", cDataBuffer) );
     }
     else
     {
