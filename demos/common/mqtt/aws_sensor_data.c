@@ -61,7 +61,6 @@
 /* Standard includes. */
 #include "string.h"
 #include "stdio.h"
-#include "time.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -165,13 +164,6 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber );
 static MQTTBool_t prvMQTTCallback( void * pvUserData,
                                    const MQTTPublishData_t * const pxCallbackParams );
 
-/**
- * @brief Subscribes to the echoTOPIC_NAME topic.
- *
- * @return pdPASS if subscribe operation is successful, pdFALSE otherwise.
- */
-static BaseType_t prvSubscribe( void );
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -255,6 +247,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
      * been created. */
     configASSERT( xMQTTHandle != NULL );
 	
+    xLastWakeTime = xTaskGetTickCount();
     TEMPERATURE_Value = (int32_t)(1000 * BSP_TSENSOR_ReadTemp());
     HUMIDITY_Value = (uint32_t)(1000 * BSP_HSENSOR_ReadHumidity());
     PRESSURE_Value = (uint32_t)(1000 * BSP_PSENSOR_ReadPressure());
@@ -264,7 +257,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
 
     (void) snprintf( cDataBuffer, echoMAX_DATA_LENGTH, \
         "{"
-        "\"timestamp\":%d,"
+        "\"tick_count\":%d,"
         "\"temperature\":%d.%d,"
         "\"humidity\":%d.%d,"
         "\"pressure\":%d.%d,"
@@ -276,7 +269,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
         "\"mag_y\":%d,"
         "\"mag_z\":%d"
         "}\r\n",
-        (int32_t)time(NULL),
+        xLastWakeTime,
         TEMPERATURE_Value / 1000, TEMPERATURE_Value % 1000,
         HUMIDITY_Value / 1000, HUMIDITY_Value % 1000,
         PRESSURE_Value / 1000, PRESSURE_Value % 1000,
@@ -373,39 +366,6 @@ static void prvMessageEchoingTask( void * pvParameters )
             configPRINTF( ( "ERROR:  Buffer is not big enough to return message with ACK: '%s'\r\n", cDataBuffer ) );
         }
     }
-}
-/*-----------------------------------------------------------*/
-
-static BaseType_t prvSubscribe( void )
-{
-    MQTTAgentReturnCode_t xReturned;
-    BaseType_t xReturn;
-    MQTTAgentSubscribeParams_t xSubscribeParams;
-
-    /* Setup subscribe parameters to subscribe to echoTOPIC_NAME topic. */
-    xSubscribeParams.pucTopic = echoTOPIC_NAME;
-    xSubscribeParams.pvPublishCallbackContext = NULL;
-    xSubscribeParams.pxPublishCallback = prvMQTTCallback;
-    xSubscribeParams.usTopicLength = ( uint16_t ) strlen( ( const char * ) echoTOPIC_NAME );
-    xSubscribeParams.xQoS = eMQTTQoS1;
-
-    /* Subscribe to the topic. */
-    xReturned = MQTT_AGENT_Subscribe( xMQTTHandle,
-                                      &xSubscribeParams,
-                                      democonfigMQTT_TIMEOUT );
-
-    if( xReturned == eMQTTAgentSuccess )
-    {
-        configPRINTF( ( "MQTT Echo demo subscribed to %s\r\n", echoTOPIC_NAME ) );
-        xReturn = pdPASS;
-    }
-    else
-    {
-        configPRINTF( ( "ERROR:  MQTT Echo demo could not subscribe to %s\r\n", echoTOPIC_NAME ) );
-        xReturn = pdFAIL;
-    }
-
-    return xReturn;
 }
 /*-----------------------------------------------------------*/
 
